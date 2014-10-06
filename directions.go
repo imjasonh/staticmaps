@@ -33,7 +33,7 @@ const (
 
 func (c Client) Directions(orig, dest Location, opts *DirectionsOpts) (*DirectionsResponse, error) {
 	var d DirectionsResponse
-	if err := c.do(baseURL+directions(orig, dest, opts), &d); err != nil {
+	if err := c.doDecode(baseURL+directions(orig, dest, opts), &d); err != nil {
 		return nil, err
 	}
 	return &d, nil
@@ -48,15 +48,11 @@ func directions(orig, dest Location, opts *DirectionsOpts) string {
 }
 
 type DirectionsOpts struct {
-	Mode          string
-	Waypoints     Route
-	Alternatives  bool
-	Avoid         []string
-	Language      string
-	Units         string
-	Region        string
-	DepartureTime time.Time
-	ArrivalTime   time.Time
+	Waypoints                     []Location
+	Alternatives                  bool
+	Avoid                         []string
+	Mode, Language, Units, Region string
+	DepartureTime, ArrivalTime    time.Time
 }
 
 func (do *DirectionsOpts) update(p url.Values) {
@@ -67,7 +63,7 @@ func (do *DirectionsOpts) update(p url.Values) {
 		p.Set("mode", do.Mode)
 	}
 	if do.Waypoints != nil {
-		p.Set("waypoints", do.Waypoints.String())
+		p.Set("waypoints", encodeLocations(do.Waypoints))
 	}
 	if do.Alternatives {
 		p.Set("alternatives", "true")

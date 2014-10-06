@@ -18,20 +18,22 @@ func NewClient(key string) Client {
 	return Client{Key: key, Transport: http.DefaultTransport}
 }
 
-func (c Client) do(url string, r interface{}) error {
+func (c Client) do(url string) (*http.Response, error) {
 	cl := &http.Client{Transport: c.Transport}
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		return err
+		return nil, err
 	}
-
 	if c.Key != "" {
 		q := req.URL.Query()
 		q.Set("key", c.Key)
 		req.URL.RawQuery = q.Encode()
 	}
+	return cl.Get(url)
+}
 
-	resp, err := cl.Get(url)
+func (c Client) doDecode(url string, r interface{}) error {
+	resp, err := c.do(url)
 	if err != nil {
 		return err
 	}
@@ -76,11 +78,9 @@ func (a Address) Location() string {
 	return string(a)
 }
 
-type Route []Location
-
-func (r Route) String() string {
-	s := make([]string, len(r))
-	for i, l := range r {
+func encodeLocations(ls []Location) string {
+	s := make([]string, len(ls))
+	for i, l := range ls {
 		s[i] = l.Location()
 	}
 	return strings.Join(s, "|")
