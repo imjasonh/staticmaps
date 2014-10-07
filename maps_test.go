@@ -75,3 +75,17 @@ func TestStaticMap(t *testing.T) {
 		t.Errorf("unexpected error: %v", err)
 	}
 }
+
+func TestStreetView(t *testing.T) {
+	c := NewClient("")
+	s := Size{600, 300}
+	opts := &StreetViewOpts{
+		Location: &LatLng{46.414382, 10.013988},
+		Heading:  Float64(151.78),
+		Pitch:    -0.76,
+	}
+	t.Logf("%s", baseURL+streetview(s, opts))
+	if _, err := c.StreetView(s, opts); err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+}

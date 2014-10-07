@@ -85,3 +85,7 @@ func encodeLocations(ls []Location) string {
 	}
 	return strings.Join(s, "|")
 }
+
+func Float64(f float64) *float64 {
+	return &f
+}
