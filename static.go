@@ -48,7 +48,7 @@ func (s Size) String() string {
 }
 
 type StaticMapOpts struct {
-	Center                            *Location
+	Center                            Location
 	Zoom, Scale                       int
 	Format, MapType, Language, Region string
 	Markers                           []Markers
@@ -180,7 +180,7 @@ func (so *StaticMapOpts) update(p url.Values) {
 		return
 	}
 	if so.Center != nil {
-		p.Set("center", (*so.Center).Location())
+		p.Set("center", so.Center.Location())
 	}
 	if so.Zoom != 0 {
 		p.Set("zoom", fmt.Sprintf("%d", so.Zoom))

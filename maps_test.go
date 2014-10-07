@@ -25,6 +25,7 @@ func TestStaticMap(t *testing.T) {
 	c := NewClient("")
 	s := Size{512, 512}
 	opts := &StaticMapOpts{
+		Center: LatLng{-5, -5},
 		Markers: []Markers{
 			{
 				Size:  "small",
@@ -65,7 +66,7 @@ func TestStaticMap(t *testing.T) {
 				Feature: "water",
 				Element: "geometry.fill",
 				Rules: []StyleRule{
-					{Hue: "0xFF0000"},
+					{Hue: "0x0000FF"},
 				},
 			},
 		},
