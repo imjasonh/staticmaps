@@ -10,12 +10,16 @@ import (
 const baseURL = "https://maps.googleapis.com/maps/api/"
 
 type Client struct {
-	Transport http.RoundTripper
-	Key       string
+	Transport                http.RoundTripper
+	Key, ClientID, Signature string
 }
 
 func NewClient(key string) Client {
 	return Client{Key: key, Transport: http.DefaultTransport}
+}
+
+func NewWorkClient(clientID, signature string) Client {
+	return Client{ClientID: clientID, Signature: signature, Transport: http.DefaultTransport}
 }
 
 func (c Client) do(url string) (*http.Response, error) {
@@ -24,11 +28,17 @@ func (c Client) do(url string) (*http.Response, error) {
 	if err != nil {
 		return nil, err
 	}
+	q := req.URL.Query()
 	if c.Key != "" {
-		q := req.URL.Query()
 		q.Set("key", c.Key)
-		req.URL.RawQuery = q.Encode()
 	}
+	if c.ClientID != "" {
+		q.Set("clientId", c.ClientID)
+	}
+	if c.Signature != "" {
+		q.Set("signature", c.Signature)
+	}
+	req.URL.RawQuery = q.Encode()
 	return cl.Get(url)
 }
 
