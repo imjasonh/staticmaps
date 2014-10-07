@@ -102,3 +102,39 @@ func TestTimeZone(t *testing.T) {
 	}
 	t.Logf("%v", r)
 }
+
+func TestElevation(t *testing.T) {
+	c := NewClient("")
+	ll := []LatLng{{39.7391536, -104.9847034}}
+	t.Logf("%s", baseURL+elevation(ll))
+	r, err := c.Elevation(ll)
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+	t.Logf("%v", r)
+
+	p := "gfo}EtohhU"
+	t.Logf("%s", baseURL+elevationpoly(p))
+	r, err = c.ElevationPolyline(p)
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+	t.Logf("%v", r)
+
+	samples := 3
+	ll = []LatLng{{36.578581, -118.291994}, {36.23998, -116.83171}}
+	t.Logf("%s", baseURL+elevationpath(ll, samples))
+	r, err = c.ElevationPath(ll, samples)
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+	t.Logf("%v", r)
+
+	p = "gfo}EtohhUxD@bAxJmGF"
+	t.Logf("%s", baseURL+elevationpathpoly(p, samples))
+	r, err = c.ElevationPathPoly(p, samples)
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+	t.Logf("%v", r)
+}

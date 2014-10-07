@@ -86,6 +86,14 @@ func encodeLocations(ls []Location) string {
 	return strings.Join(s, "|")
 }
 
+func encodeLatLngs(ll []LatLng) string {
+	s := make([]string, len(ll))
+	for i, l := range ll {
+		s[i] = l.Location()
+	}
+	return strings.Join(s, "|")
+}
+
 func Float64(f float64) *float64 {
 	return &f
 }
