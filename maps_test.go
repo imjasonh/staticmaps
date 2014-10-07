@@ -90,3 +90,15 @@ func TestStreetView(t *testing.T) {
 		t.Errorf("unexpected error: %v", err)
 	}
 }
+
+func TestTimeZone(t *testing.T) {
+	c := NewClient("")
+	ll := LatLng{40.7142700, -74.0059700}
+	tm := time.Now()
+	t.Logf("%s", baseURL+timezone(ll, tm, nil))
+	r, err := c.TimeZone(ll, tm, nil)
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+	t.Logf("%v", r)
+}

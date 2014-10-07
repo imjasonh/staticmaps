@@ -27,6 +27,7 @@ const (
 	StatusInvalidRequest       = "INVALID_REQUEST"
 	StatusRequestDenied        = "REQUEST_DENIED"
 	StatusUnknownError         = "UNKNOWN_ERROR"
+	StatusOverQueryLimit       = "OVER_QUERY_LIMIT"
 )
 
 // TODO: via_waypoint not documented
