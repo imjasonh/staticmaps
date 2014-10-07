@@ -107,3 +107,7 @@ func encodeLatLngs(ll []LatLng) string {
 func Float64(f float64) *float64 {
 	return &f
 }
+
+func String(s string) *string {
+	return &s
+}

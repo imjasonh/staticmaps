@@ -159,3 +159,20 @@ func TestGeocode(t *testing.T) {
 	}
 	t.Logf("%v", r)
 }
+
+func TestDistanceMatrix(t *testing.T) {
+	c := NewClient("")
+	orig := []Location{Address("Vancouver, BC"), Address("Seattle")}
+	dst := []Location{Address("San Francisco"), Address("Victoria, BC")}
+	opts := &DistanceMatrixOpts{
+		Mode:     String(ModeBicycling),
+		Language: "fr-FR",
+	}
+	t.Logf("%s", baseURL+distancematrix(orig, dst, opts))
+	r, err := c.DistanceMatrix(orig, dst, opts)
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+	t.Logf("%v", r)
+
+}
