@@ -139,8 +139,8 @@ type Step struct {
 	HTMLInstructions string    `json:"html_instructions"`
 	Steps            []Step    `json:"steps"` // sub-steps
 	TransitDetails   *struct {
-		ArrivalStop   string `json:"arrival_stop"`
-		DepartureStop string `json:"departure_stop"`
+		ArrivalStop   Stop   `json:"arrival_stop"`
+		DepartureStop Stop   `json:"departure_stop"`
 		ArrivalTime   Time   `json:"arrival_time"`
 		DepartureTime Time   `json:"departure_time"`
 		Headsign      string `json:"headsign"`
@@ -165,6 +165,11 @@ type Step struct {
 			} `json:"vehicle"`
 		} `json:"line"`
 	} `json:"transit_details"`
+}
+
+type Stop struct {
+	Location LatLng `json:"location"`
+	Name     string `json:"name"`
 }
 
 type Bounds struct {
