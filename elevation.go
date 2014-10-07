@@ -68,6 +68,6 @@ type ElevationResponse struct {
 		Elevation  float64 `json:"elevation"`
 		Location   LatLng  `json:"location"`
 		Resolution float64 `json:"resolution"`
-	}
+	} `json:"results"`
 	Status string `json:"status"`
 }

@@ -178,6 +178,10 @@ type Bounds struct {
 	Southwest LatLng `json:"southwest"`
 }
 
+func (b Bounds) String() string {
+	return fmt.Sprintf("%s|%s", b.Northeast, b.Southwest)
+}
+
 type Duration struct {
 	Value int64  `json:"value"`
 	Text  string `json:"text"`

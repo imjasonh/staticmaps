@@ -138,3 +138,24 @@ func TestElevation(t *testing.T) {
 	}
 	t.Logf("%v", r)
 }
+
+func TestGeocode(t *testing.T) {
+	c := NewClient("")
+	opts := &GeocodeOpts{
+		Address: Address("1600 Amphitheatre Parkway, Mountain View, CA"),
+	}
+	t.Logf("%s", baseURL+geocode(opts))
+	r, err := c.Geocode(opts)
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+	t.Logf("%v", r)
+
+	ll := LatLng{40.714224, -73.961452}
+	t.Logf("%s", baseURL+reversegeocode(ll, nil))
+	r, err = c.ReverseGeocode(ll, nil)
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+	t.Logf("%v", r)
+}
