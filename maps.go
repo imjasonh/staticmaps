@@ -23,7 +23,9 @@ func NewWorkClient(clientID, signature string) Client {
 }
 
 func (c Client) do(url string) (*http.Response, error) {
-	cl := &http.Client{Transport: c.Transport}
+	cl := &http.Client{Transport: &backoff{
+		Transport: &c.Transport,
+	}}
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err
