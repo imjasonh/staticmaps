@@ -57,12 +57,26 @@ func (c Client) doDecode(url string, r interface{}) error {
 	return nil
 }
 
+// HTTPError indicates an error communicating with the API, and includes the HTTP response returned from the server.
 type HTTPError struct {
 	Response *http.Response
 }
 
 func (e HTTPError) Error() string {
 	return fmt.Sprintf("http error %d", e.Response.StatusCode)
+}
+
+// APIError indicates a failure response from the API server, even though a successful HTTP response was returned.
+// Its Status and Message fields can be consulted for more information about the specific error conditions.
+type APIError struct {
+	Status, Message string
+}
+
+func (e APIError) Error() string {
+	if e.Message != "" {
+		return fmt.Sprintf("API error %q: %s", e.Status, e.Message)
+	}
+	return fmt.Sprintf("API Error %q", e.Status)
 }
 
 type Location interface {

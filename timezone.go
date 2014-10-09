@@ -6,12 +6,15 @@ import (
 	"time"
 )
 
-func (c Client) TimeZone(ll LatLng, t time.Time, opts *TimeZoneOpts) (*TimeZoneResponse, error) {
-	var r TimeZoneResponse
+func (c Client) TimeZone(ll LatLng, t time.Time, opts *TimeZoneOpts) (*TimeZoneResult, error) {
+	var r timeZoneResponse
 	if err := c.doDecode(baseURL+timezone(ll, t, opts), &r); err != nil {
 		return nil, err
 	}
-	return &r, nil
+	if r.Status != StatusOK {
+		return nil, APIError{r.Status, r.ErrorMessage}
+	}
+	return &r.TimeZoneResult, nil
 }
 
 func timezone(ll LatLng, t time.Time, opts *TimeZoneOpts) string {
@@ -35,19 +38,23 @@ func (t *TimeZoneOpts) update(p url.Values) {
 	}
 }
 
-type TimeZoneResponse struct {
+type timeZoneResponse struct {
 	Status       string `json:"status"`
 	ErrorMessage string `json:"error_message"`
+	TimeZoneResult
+}
+
+type TimeZoneResult struct {
 	DSTOffset    int64  `json:"dstOffset"` // secs offset for DST
 	RawOffset    int64  `json:"rawOffset"`
 	TimeZoneID   string `json:"timeZoneId"`
 	TimeZoneName string `json:"timeZoneName"`
 }
 
-func (r TimeZoneResponse) DSTOffsetDuration() time.Duration {
+func (r TimeZoneResult) DSTOffsetDuration() time.Duration {
 	return time.Duration(r.DSTOffset) * time.Second
 }
 
-func (r TimeZoneResponse) RawOffsetDuration() time.Duration {
+func (r TimeZoneResult) RawOffsetDuration() time.Duration {
 	return time.Duration(r.RawOffset) * time.Second
 }

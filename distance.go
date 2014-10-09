@@ -6,12 +6,15 @@ import (
 	"time"
 )
 
-func (c Client) DistanceMatrix(orig, dest []Location, opts *DistanceMatrixOpts) (*DistanceMatrixResponse, error) {
-	var d DistanceMatrixResponse
+func (c Client) DistanceMatrix(orig, dest []Location, opts *DistanceMatrixOpts) (*DistanceMatrixResult, error) {
+	var d distanceResponse
 	if err := c.doDecode(baseURL+distancematrix(orig, dest, opts), &d); err != nil {
 		return nil, err
 	}
-	return &d, nil
+	if d.Status != StatusOK {
+		return nil, APIError{d.Status, ""}
+	}
+	return &d.DistanceMatrixResult, nil
 }
 
 func distancematrix(orig, dest []Location, opts *DistanceMatrixOpts) string {
@@ -49,8 +52,12 @@ func (o *DistanceMatrixOpts) update(p url.Values) {
 	}
 }
 
-type DistanceMatrixResponse struct {
-	Status               string   `json:"status"`
+type distanceResponse struct {
+	Status string `json:"status"`
+	DistanceMatrixResult
+}
+
+type DistanceMatrixResult struct {
 	OriginAddresses      []string `json:"origin_addresses"`
 	DestinationAddresses []string `json:"destination_addresses"`
 	Rows                 []struct {

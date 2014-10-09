@@ -21,12 +21,15 @@ const (
 	// TODO: enums for https://developers.google.com/maps/documentation/geocoding/#Types
 )
 
-func (c Client) Geocode(opts *GeocodeOpts) (*GeocodeResponse, error) {
-	var r GeocodeResponse
+func (c Client) Geocode(opts *GeocodeOpts) ([]GeocodeResult, error) {
+	var r geocodeResponse
 	if err := c.doDecode(baseURL+geocode(opts), &r); err != nil {
 		return nil, err
 	}
-	return &r, nil
+	if r.Status != StatusOK {
+		return nil, APIError{r.Status, ""}
+	}
+	return r.Results, nil
 }
 
 func geocode(opts *GeocodeOpts) string {
@@ -79,33 +82,37 @@ func (g *GeocodeOpts) update(p url.Values) {
 	}
 }
 
-type GeocodeResponse struct {
-	Results []struct {
-		AddressComponents []struct {
-			LongName  string   `json:"long_name"`
-			ShortName string   `json:"short_name"`
-			Types     []string `json:"types"`
-		} `json:"address_components"`
-		PostcodeLocalities []string `json:"postcode_localities"`
-		FormattedAddress   string   `json:"formatted_address"`
-		Geometry           struct {
-			Location     LatLng `json:"location"`
-			LocationType string `json:"location_type"`
-			Viewport     Bounds `json:"viewport"`
-			Bounds       Bounds `json:"bounds"`
-		} `json:"geometry"`
-		Types        []string `json:"types"`
-		PartialMatch string   `json:"partial_match"`
-	} `json:"results"`
-	Status string `json:"status"`
+type geocodeResponse struct {
+	Results []GeocodeResult `json:"results"`
+	Status  string          `json:"status"`
+}
+type GeocodeResult struct {
+	AddressComponents []struct {
+		LongName  string   `json:"long_name"`
+		ShortName string   `json:"short_name"`
+		Types     []string `json:"types"`
+	} `json:"address_components"`
+	PostcodeLocalities []string `json:"postcode_localities"`
+	FormattedAddress   string   `json:"formatted_address"`
+	Geometry           struct {
+		Location     LatLng `json:"location"`
+		LocationType string `json:"location_type"`
+		Viewport     Bounds `json:"viewport"`
+		Bounds       Bounds `json:"bounds"`
+	} `json:"geometry"`
+	Types        []string `json:"types"`
+	PartialMatch string   `json:"partial_match"`
 }
 
-func (c Client) ReverseGeocode(ll LatLng, opts *ReverseGeocodeOpts) (*GeocodeResponse, error) {
-	var r GeocodeResponse
+func (c Client) ReverseGeocode(ll LatLng, opts *ReverseGeocodeOpts) ([]GeocodeResult, error) {
+	var r geocodeResponse
 	if err := c.doDecode(baseURL+reversegeocode(ll, opts), &r); err != nil {
 		return nil, err
 	}
-	return &r, nil
+	if r.Status != StatusOK {
+		return nil, APIError{r.Status, ""}
+	}
+	return r.Results, nil
 }
 
 type ReverseGeocodeOpts struct {

@@ -32,12 +32,15 @@ const (
 
 // TODO: via_waypoint not documented
 
-func (c Client) Directions(orig, dest Location, opts *DirectionsOpts) (*DirectionsResponse, error) {
-	var d DirectionsResponse
+func (c Client) Directions(orig, dest Location, opts *DirectionsOpts) ([]Route, error) {
+	var d directionsResponse
 	if err := c.doDecode(baseURL+directions(orig, dest, opts), &d); err != nil {
 		return nil, err
 	}
-	return &d, nil
+	if d.Status != StatusOK {
+		return nil, APIError{d.Status, d.ErrorMessage}
+	}
+	return d.Routes, nil
 }
 
 func directions(orig, dest Location, opts *DirectionsOpts) string {
@@ -89,29 +92,31 @@ func (do *DirectionsOpts) update(p url.Values) {
 	}
 }
 
-type DirectionsResponse struct {
-	Status       string `json:"status"`
-	ErrorMessage string `json:"error_message"`
-	Routes       []struct {
-		Summary string `json:"summary"`
-		Legs    []struct {
-			Duration          *Duration `json:"duration"`
-			DurationInTraffic *Duration `json:"duration_in_traffic"`
-			Distance          *Distance `json:"distance"`
-			ArrivalTime       Time      `json:"arrival_time"`
-			DepartureTime     Time      `json:"departure_time"`
-			StartLocation     *LatLng   `json:"start_location"`
-			EndLocation       *LatLng   `json:"end_location"`
-			StartAddress      string    `json:"start_address"`
-			EndAddress        string    `json:"end_address"`
-			Steps             []Step    `json:"steps"`
-		} `json:"legs"`
-		Bounds           Bounds   `json:"bounds"`
-		Copyrights       string   `json:"copyrights"`
-		OverviewPolyline Polyline `json:"overview_polyline"`
-		Warnings         []string `json:"warnings"`
-		WaypointOrder    []int    `json:"waypoint_order"`
-	} `json:"routes"`
+type directionsResponse struct {
+	Status       string  `json:"status"`
+	ErrorMessage string  `json:"error_message"`
+	Routes       []Route `json:"routes"`
+}
+
+type Route struct {
+	Summary string `json:"summary"`
+	Legs    []struct {
+		Duration          *Duration `json:"duration"`
+		DurationInTraffic *Duration `json:"duration_in_traffic"`
+		Distance          *Distance `json:"distance"`
+		ArrivalTime       Time      `json:"arrival_time"`
+		DepartureTime     Time      `json:"departure_time"`
+		StartLocation     *LatLng   `json:"start_location"`
+		EndLocation       *LatLng   `json:"end_location"`
+		StartAddress      string    `json:"start_address"`
+		EndAddress        string    `json:"end_address"`
+		Steps             []Step    `json:"steps"`
+	} `json:"legs"`
+	Bounds           Bounds   `json:"bounds"`
+	Copyrights       string   `json:"copyrights"`
+	OverviewPolyline Polyline `json:"overview_polyline"`
+	Warnings         []string `json:"warnings"`
+	WaypointOrder    []int    `json:"waypoint_order"`
 }
 
 type Time struct {
