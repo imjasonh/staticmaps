@@ -121,7 +121,7 @@ func (do *DirectionsOpts) update(p url.Values) {
 	if do.Waypoints != nil {
 		v := ""
 		if do.OptimizeWaypoints {
-			v := "optimize:true|"
+			v = "optimize:true|"
 		}
 		p.Set("waypoints", v+encodeLocations(do.Waypoints))
 	}

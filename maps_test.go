@@ -165,7 +165,7 @@ func TestDistanceMatrix(t *testing.T) {
 	orig := []Location{Address("Vancouver, BC"), Address("Seattle")}
 	dst := []Location{Address("San Francisco"), Address("Victoria, BC")}
 	opts := &DistanceMatrixOpts{
-		Mode:     String(ModeBicycling),
+		Mode:     ModeBicycling,
 		Language: "fr-FR",
 	}
 	t.Logf("%s", baseURL+distancematrix(orig, dst, opts))
