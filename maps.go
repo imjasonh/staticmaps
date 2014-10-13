@@ -30,15 +30,20 @@ const (
 	StatusOverQueryLimit = "OVER_QUERY_LIMIT"
 )
 
+// Client provides methods to make requests of various Maps APIs.
 type Client struct {
 	Transport                http.RoundTripper
 	Key, ClientID, Signature string
 }
 
+// NewClient returns a Client using the specified API key.
 func NewClient(key string) Client {
 	return Client{Key: key, Transport: http.DefaultTransport}
 }
 
+// NewWorkClient returns a Client using the specified Google Maps API for Work client ID and signature.
+//
+// See https://developers.google.com/maps/documentation/business/
 func NewWorkClient(clientID, signature string) Client {
 	return Client{ClientID: clientID, Signature: signature, Transport: http.DefaultTransport}
 }
@@ -82,6 +87,7 @@ func (c Client) doDecode(url string, r interface{}) error {
 
 // HTTPError indicates an error communicating with the API server, and includes the HTTP response returned from the server.
 type HTTPError struct {
+	// Response is the http.Response returned from the API request.
 	Response *http.Response
 }
 
@@ -102,15 +108,18 @@ func (e APIError) Error() string {
 	return fmt.Sprintf("API Error %q", e.Status)
 }
 
+// Location represents the general concept of a location in various methods.
 type Location interface {
 	Location() string
 }
 
+// LatLng represents a Location that is identified by its longitude and latitude.
 type LatLng struct {
 	Lat float64 `json:"lat"`
 	Lng float64 `json:"lng"`
 }
 
+// Location returns the latitude/longitude pair as a comma-separated string.
 func (ll LatLng) Location() string {
 	return fmt.Sprintf("%f,%f", ll.Lat, ll.Lng)
 }
@@ -119,8 +128,10 @@ func (ll LatLng) String() string {
 	return ll.Location()
 }
 
+// Address represents a Location that is identified by its name or address, e.g., "New York, NY" or "111 8th Ave, NYC"
 type Address string
 
+// Location returns the Address as a string.
 func (a Address) Location() string {
 	return string(a)
 }
@@ -141,10 +152,9 @@ func encodeLatLngs(ll []LatLng) string {
 	return strings.Join(s, "|")
 }
 
+// Float64 returns a pointer to the given float64 value.
+//
+// This is a convenience method since some options structs take a *float64.
 func Float64(f float64) *float64 {
 	return &f
-}
-
-func String(s string) *string {
-	return &s
 }
