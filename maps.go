@@ -1,15 +1,18 @@
 package maps
 
 import (
+	"crypto/hmac"
+	"crypto/sha1"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
 )
 
-const baseURL = "https://maps.googleapis.com/maps/api/"
-
 const (
+	baseURL = "https://maps.googleapis.com/maps/api/"
+
 	// StatusOK indicates the response contains a valid result.
 	StatusOK = "OK"
 	// StatusNotFound indicates at least one of the locations specified could not be geocoded.
@@ -32,8 +35,21 @@ const (
 
 // Client provides methods to make requests of various Maps APIs.
 type Client struct {
-	Transport                http.RoundTripper
-	Key, ClientID, Signature string
+	// The underlying http.RoundTripper to use. If this is not specified, http.DefaultTransport will be used.
+	Transport http.RoundTripper
+
+	// Key is the API key to use to authorize requests.
+	Key string
+
+	// ClientID is the Google Maps API for Work client ID to use.
+	//
+	// See https://developers.google.com/maps/documentation/business/webservices/auth
+	ClientID string
+
+	// PrivateKey is the base64-encoded private key to use for Google Maps API for Work requests.
+	//
+	// See https://developers.google.com/maps/documentation/business/webservices/auth
+	PrivateKey string
 }
 
 // NewClient returns a Client using the specified API key.
@@ -44,8 +60,8 @@ func NewClient(key string) Client {
 // NewWorkClient returns a Client using the specified Google Maps API for Work client ID and signature.
 //
 // See https://developers.google.com/maps/documentation/business/
-func NewWorkClient(clientID, signature string) Client {
-	return Client{ClientID: clientID, Signature: signature, Transport: http.DefaultTransport}
+func NewWorkClient(clientID, privateKey string) Client {
+	return Client{ClientID: clientID, PrivateKey: privateKey, Transport: http.DefaultTransport}
 }
 
 func (c Client) do(url string) (*http.Response, error) {
@@ -61,13 +77,32 @@ func (c Client) do(url string) (*http.Response, error) {
 		q.Set("key", c.Key)
 	}
 	if c.ClientID != "" {
-		q.Set("clientId", c.ClientID)
+		q.Set("client", c.ClientID)
 	}
-	if c.Signature != "" {
-		q.Set("signature", c.Signature)
+	enc := q.Encode()
+	if c.PrivateKey != "" {
+		sig, err := c.genSig(req.URL.Path, enc)
+		if err != nil {
+			return nil, err
+		}
+		enc += "&signature=" + sig
 	}
-	req.URL.RawQuery = q.Encode()
+	req.URL.RawQuery = enc
 	return cl.Get(url)
+}
+
+// See https://developers.google.com/maps/documentation/business/webservices/auth
+func (c Client) genSig(path, query string) (string, error) {
+	toSign := path + "?" + query
+	decodedKey, err := base64.URLEncoding.DecodeString(c.PrivateKey)
+	if err != nil {
+		return "", err
+	}
+	d := hmac.New(sha1.New, decodedKey)
+	if _, err := d.Write([]byte(toSign)); err != nil {
+		return "", err
+	}
+	return base64.URLEncoding.EncodeToString(d.Sum(nil)), nil
 }
 
 func (c Client) doDecode(url string, r interface{}) error {

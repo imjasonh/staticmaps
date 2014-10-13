@@ -176,3 +176,16 @@ func TestDistanceMatrix(t *testing.T) {
 	t.Logf("%v", r)
 
 }
+
+// Based on https://developers.google.com/maps/documentation/business/webservices/auth#signature_examples
+func TestSignature(t *testing.T) {
+	c := NewWorkClient("", "vNIXE0xscrmjlyV-12Nj_BvUPaw=")
+	sig, err := c.genSig("/maps/api/geocode/json", "address=New+York&client=clientID")
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+	exp := "chaRF2hTJKOScPr-RQCEhZbSzIE="
+	if sig != exp {
+		t.Errorf("wrong signature, got %q, want %q", sig, exp)
+	}
+}
