@@ -9,6 +9,27 @@ import (
 
 const baseURL = "https://maps.googleapis.com/maps/api/"
 
+const (
+	// StatusOK indicates the response contains a valid result.
+	StatusOK = "OK"
+	// StatusNotFound indicates at least one of the locations specified could not be geocoded.
+	StatusNotFound = "NOT_FOUND"
+	// StatusZeroResults indicates no route could be found between the origin and destination.
+	StatusZeroResults = "ZERO_RESULTS"
+	// StatusMaxWaypointsExceeded indicates that too many Waypoints were provided in the request.
+	//
+	// The maximum allowed waypoints is 8, plus the origin and destination. Google Maps API for Work clients may contain requests with up to 23 waypoints.
+	StatusMaxWaypointsExceeded = "MAX_WAYPOINTS_EXCEEDED"
+	// StatusInvalidRequest indicates that the provided request was invalid.
+	StatusInvalidRequest = "INVALID_REQUEST"
+	// StatusRequestDenied indicates that the service denied use of the service by your application.
+	StatusRequestDenied = "REQUEST_DENIED"
+	// StatusUnknownError indicates that the request could not be processed due to a server error. The request may succeed if you try again.
+	StatusUnknownError = "UNKNOWN_ERROR"
+	// StatusOverQueryLimit indicates that the service has received too many requests from your application within the allowed time period.
+	StatusOverQueryLimit = "OVER_QUERY_LIMIT"
+)
+
 type Client struct {
 	Transport                http.RoundTripper
 	Key, ClientID, Signature string
@@ -59,7 +80,7 @@ func (c Client) doDecode(url string, r interface{}) error {
 	return nil
 }
 
-// HTTPError indicates an error communicating with the API, and includes the HTTP response returned from the server.
+// HTTPError indicates an error communicating with the API server, and includes the HTTP response returned from the server.
 type HTTPError struct {
 	Response *http.Response
 }
