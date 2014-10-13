@@ -54,7 +54,7 @@ func directions(orig, dest Location, opts *DirectionsOpts) string {
 	return "directions/json?" + p.Encode()
 }
 
-// DirectionsOpts defines options for Directions requests
+// DirectionsOpts defines options for Directions requests.
 type DirectionsOpts struct {
 	// Waypoints alter a route by routing it through the specified location(s).
 	//
@@ -69,7 +69,7 @@ type DirectionsOpts struct {
 	// If true, multiple Routes may be returned. This may increase the response time from the server.
 	Alternatives bool
 
-	// Indicates that the calculated route(s) should avoid the indicated features.
+	// Avoid indicates that the calculated route(s) should avoid the indicated features.
 	//
 	// Accepted values are AvoidTolls, AvoidHighways and AvoidFerries
 	//
