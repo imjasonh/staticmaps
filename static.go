@@ -64,7 +64,7 @@ type Size struct {
 }
 
 func (s Size) String() string {
-	return fmt.Sprintf("%dx%d", s.H, s.W)
+	return fmt.Sprintf("%dx%d", s.W, s.H)
 }
 
 // StaticMapOpts defines options for StaticMap requests.
@@ -223,7 +223,7 @@ func (p Path) encode() string {
 		style += "|"
 	}
 	if p.Polyline != "" {
-		return style + p.Polyline
+		return style + "enc:" + p.Polyline
 	}
 	return style + encodeLocations(p.Locations)
 }
