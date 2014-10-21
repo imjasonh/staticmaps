@@ -35,61 +35,23 @@ const (
 	StatusOverQueryLimit = "OVER_QUERY_LIMIT"
 )
 
-// Client provides methods to make requests of various Maps APIs.
-type Client struct {
-	// The underlying http.RoundTripper to use. If this is not specified, http.DefaultTransport will be used.
-	Transport http.RoundTripper
-
-	// Key is the API key to use to authorize requests.
-	Key string
-
-	// ClientID is the Google Maps API for Work client ID to use.
-	//
-	// See https://developers.google.com/maps/documentation/business/webservices/auth
-	ClientID string
-
-	// PrivateKey is the base64-encoded private key to use for Google Maps API for Work requests.
-	//
-	// See https://developers.google.com/maps/documentation/business/webservices/auth
-	PrivateKey string
-}
-
-// New returns a Client using the specified API key and RoundTripper.
-func New(key string, rt http.RoundTripper) Client {
-	return Client{Key: key, Transport: rt}
-}
-
-// NewForWork returns a Client using the specified Google Maps API for Work client ID and signature, and RoundTripper.
-//
-// See https://developers.google.com/maps/documentation/business/
-func NewForWork(clientID, privateKey string, rt http.RoundTripper) Client {
-	return Client{ClientID: clientID, PrivateKey: privateKey, Transport: rt}
-}
-
-func (c Client) do(ctx context.Context, url string) (*http.Response, error) {
-	// TODO: Use ctx here.
-
-	t := c.Transport
-	if t == nil {
-		t = http.DefaultTransport
-	}
-	cl := &http.Client{Transport: &backoff{
-		Transport: t,
-	}}
+func do(ctx context.Context, url string) (*http.Response, error) {
+	cl := httpClient(ctx)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err
 	}
 	q := req.URL.Query()
-	if c.Key != "" {
-		q.Set("key", c.Key)
+	if k := key(ctx); k != "" {
+		q.Set("key", k)
 	}
-	if c.ClientID != "" {
-		q.Set("client", c.ClientID)
+	clientID, privKey := workCreds(ctx)
+	if clientID != "" {
+		q.Set("client", clientID)
 	}
 	enc := q.Encode()
-	if c.PrivateKey != "" {
-		sig, err := c.genSig(req.URL.Path, enc)
+	if privKey != "" {
+		sig, err := genSig(privKey, req.URL.Path, enc)
 		if err != nil {
 			return nil, err
 		}
@@ -100,9 +62,9 @@ func (c Client) do(ctx context.Context, url string) (*http.Response, error) {
 }
 
 // See https://developers.google.com/maps/documentation/business/webservices/auth
-func (c Client) genSig(path, query string) (string, error) {
+func genSig(privKey, path, query string) (string, error) {
 	toSign := path + "?" + query
-	decodedKey, err := base64.URLEncoding.DecodeString(c.PrivateKey)
+	decodedKey, err := base64.URLEncoding.DecodeString(privKey)
 	if err != nil {
 		return "", err
 	}
@@ -113,8 +75,8 @@ func (c Client) genSig(path, query string) (string, error) {
 	return base64.URLEncoding.EncodeToString(d.Sum(nil)), nil
 }
 
-func (c Client) doDecode(ctx context.Context, url string, r interface{}) error {
-	resp, err := c.do(ctx, url)
+func doDecode(ctx context.Context, url string, r interface{}) error {
+	resp, err := do(ctx, url)
 	if err != nil {
 		return err
 	}

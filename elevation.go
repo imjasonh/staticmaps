@@ -10,9 +10,9 @@ import (
 // Elevation requests elevation data for a series of locations.
 //
 // See https://developers.google.com/maps/documentation/elevation/
-func (c Client) Elevation(ctx context.Context, ll []LatLng) ([]ElevationResult, error) {
+func Elevation(ctx context.Context, ll []LatLng) ([]ElevationResult, error) {
 	var r elevationResponse
-	if err := c.doDecode(ctx, baseURL+elevation(ll), &r); err != nil {
+	if err := doDecode(ctx, baseURL+elevation(ll), &r); err != nil {
 		return nil, err
 	}
 	if r.Status != StatusOK {
@@ -24,9 +24,9 @@ func (c Client) Elevation(ctx context.Context, ll []LatLng) ([]ElevationResult, 
 // ElevationPolyline requests elevation data for a series of locations as specified as an encoded polyline.
 //
 // See https://developers.google.com/maps/documentation/elevation/#Locations
-func (c Client) ElevationPolyline(ctx context.Context, p string) ([]ElevationResult, error) {
+func ElevationPolyline(ctx context.Context, p string) ([]ElevationResult, error) {
 	var r elevationResponse
-	if err := c.doDecode(ctx, baseURL+elevationpoly(p), &r); err != nil {
+	if err := doDecode(ctx, baseURL+elevationpoly(p), &r); err != nil {
 		return nil, err
 	}
 	if r.Status != StatusOK {
@@ -36,9 +36,9 @@ func (c Client) ElevationPolyline(ctx context.Context, p string) ([]ElevationRes
 }
 
 // ElevationPath requests elevation data for a number of samples along a path described as a series of locations.
-func (c Client) ElevationPath(ctx context.Context, ll []LatLng, samples int) ([]ElevationResult, error) {
+func ElevationPath(ctx context.Context, ll []LatLng, samples int) ([]ElevationResult, error) {
 	var r elevationResponse
-	if err := c.doDecode(ctx, baseURL+elevationpath(ll, samples), &r); err != nil {
+	if err := doDecode(ctx, baseURL+elevationpath(ll, samples), &r); err != nil {
 		return nil, err
 	}
 	if r.Status != StatusOK {
@@ -48,9 +48,9 @@ func (c Client) ElevationPath(ctx context.Context, ll []LatLng, samples int) ([]
 }
 
 // ElevationPathPoly requests elevation data for a number of samples along a path described as a series of locations specified as an encoded polyline.
-func (c Client) ElevationPathPoly(ctx context.Context, p string, samples int) ([]ElevationResult, error) {
+func ElevationPathPoly(ctx context.Context, p string, samples int) ([]ElevationResult, error) {
 	var r elevationResponse
-	if err := c.doDecode(ctx, baseURL+elevationpathpoly(p, samples), &r); err != nil {
+	if err := doDecode(ctx, baseURL+elevationpathpoly(p, samples), &r); err != nil {
 		return nil, err
 	}
 	if r.Status != StatusOK {

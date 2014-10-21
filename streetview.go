@@ -10,8 +10,8 @@ import (
 )
 
 // StreetView requests a static StreetView image of the requested size.
-func (c Client) StreetView(ctx context.Context, s Size, opts *StreetViewOpts) (io.ReadCloser, error) {
-	resp, err := c.do(ctx, baseURL+streetview(s, opts))
+func StreetView(ctx context.Context, s Size, opts *StreetViewOpts) (io.ReadCloser, error) {
+	resp, err := do(ctx, baseURL+streetview(s, opts))
 	if err != nil {
 		return nil, err
 	}

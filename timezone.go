@@ -11,9 +11,9 @@ import (
 // TimeZone requests time zone information about a location.
 //
 // See https://developers.google.com/maps/documentation/timezone/
-func (c Client) TimeZone(ctx context.Context, ll LatLng, t time.Time, opts *TimeZoneOpts) (*TimeZoneResult, error) {
+func TimeZone(ctx context.Context, ll LatLng, t time.Time, opts *TimeZoneOpts) (*TimeZoneResult, error) {
 	var r timeZoneResponse
-	if err := c.doDecode(ctx, baseURL+timezone(ll, t, opts), &r); err != nil {
+	if err := doDecode(ctx, baseURL+timezone(ll, t, opts), &r); err != nil {
 		return nil, err
 	}
 	if r.Status != StatusOK {

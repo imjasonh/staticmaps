@@ -2,16 +2,17 @@ package maps
 
 import (
 	"image/color"
+	"net/http"
 	"testing"
 	"time"
-
-	"code.google.com/p/go.net/context"
 )
 
-var ctx = context.Background()
+var (
+	ctx  = NewContext("key", &http.Client{})
+	wctx = NewWorkContext("clientID", "privKey", &http.Client{})
+)
 
 func TestDirections(t *testing.T) {
-	c := New("", nil)
 	orig, dest := Address("111 8th Ave, NYC"), Address("170 E 92nd St, NYC")
 	opts := &DirectionsOpts{
 		Mode:          ModeTransit,
@@ -19,7 +20,7 @@ func TestDirections(t *testing.T) {
 		Alternatives:  true,
 	}
 	t.Logf("%s", baseURL+directions(orig, dest, opts))
-	r, err := c.Directions(ctx, orig, dest, opts)
+	r, err := Directions(ctx, orig, dest, opts)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
@@ -27,7 +28,6 @@ func TestDirections(t *testing.T) {
 }
 
 func TestStaticMap(t *testing.T) {
-	c := New("", nil)
 	s := Size{512, 512}
 	opts := &StaticMapOpts{
 		Center: LatLng{-5, -5},
@@ -77,13 +77,12 @@ func TestStaticMap(t *testing.T) {
 		},
 	}
 	t.Logf("%s", baseURL+staticmap(s, opts))
-	if _, err := c.StaticMap(ctx, s, opts); err != nil {
+	if _, err := StaticMap(ctx, s, opts); err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
 }
 
 func TestStreetView(t *testing.T) {
-	c := New("", nil)
 	s := Size{600, 300}
 	opts := &StreetViewOpts{
 		Location: &LatLng{46.414382, 10.013988},
@@ -91,17 +90,16 @@ func TestStreetView(t *testing.T) {
 		Pitch:    -0.76,
 	}
 	t.Logf("%s", baseURL+streetview(s, opts))
-	if _, err := c.StreetView(ctx, s, opts); err != nil {
+	if _, err := StreetView(ctx, s, opts); err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
 }
 
 func TestTimeZone(t *testing.T) {
-	c := New("", nil)
 	ll := LatLng{40.7142700, -74.0059700}
 	tm := time.Now()
 	t.Logf("%s", baseURL+timezone(ll, tm, nil))
-	r, err := c.TimeZone(ctx, ll, tm, nil)
+	r, err := TimeZone(ctx, ll, tm, nil)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
@@ -109,10 +107,9 @@ func TestTimeZone(t *testing.T) {
 }
 
 func TestElevation(t *testing.T) {
-	c := New("", nil)
 	ll := []LatLng{{39.7391536, -104.9847034}}
 	t.Logf("%s", baseURL+elevation(ll))
-	r, err := c.Elevation(ctx, ll)
+	r, err := Elevation(ctx, ll)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
@@ -120,7 +117,7 @@ func TestElevation(t *testing.T) {
 
 	p := "gfo}EtohhU"
 	t.Logf("%s", baseURL+elevationpoly(p))
-	r, err = c.ElevationPolyline(ctx, p)
+	r, err = ElevationPolyline(ctx, p)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
@@ -129,7 +126,7 @@ func TestElevation(t *testing.T) {
 	samples := 3
 	ll = []LatLng{{36.578581, -118.291994}, {36.23998, -116.83171}}
 	t.Logf("%s", baseURL+elevationpath(ll, samples))
-	r, err = c.ElevationPath(ctx, ll, samples)
+	r, err = ElevationPath(ctx, ll, samples)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
@@ -137,7 +134,7 @@ func TestElevation(t *testing.T) {
 
 	p = "gfo}EtohhUxD@bAxJmGF"
 	t.Logf("%s", baseURL+elevationpathpoly(p, samples))
-	r, err = c.ElevationPathPoly(ctx, p, samples)
+	r, err = ElevationPathPoly(ctx, p, samples)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
@@ -145,12 +142,11 @@ func TestElevation(t *testing.T) {
 }
 
 func TestGeocode(t *testing.T) {
-	c := New("", nil)
 	opts := &GeocodeOpts{
 		Address: Address("1600 Amphitheatre Parkway, Mountain View, CA"),
 	}
 	t.Logf("%s", baseURL+geocode(opts))
-	r, err := c.Geocode(ctx, opts)
+	r, err := Geocode(ctx, opts)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
@@ -158,7 +154,7 @@ func TestGeocode(t *testing.T) {
 
 	ll := LatLng{40.714224, -73.961452}
 	t.Logf("%s", baseURL+reversegeocode(ll, nil))
-	r, err = c.ReverseGeocode(ctx, ll, nil)
+	r, err = ReverseGeocode(ctx, ll, nil)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
@@ -166,7 +162,6 @@ func TestGeocode(t *testing.T) {
 }
 
 func TestDistanceMatrix(t *testing.T) {
-	c := New("", nil)
 	orig := []Location{Address("Vancouver, BC"), Address("Seattle")}
 	dst := []Location{Address("San Francisco"), Address("Victoria, BC")}
 	opts := &DistanceMatrixOpts{
@@ -174,7 +169,7 @@ func TestDistanceMatrix(t *testing.T) {
 		Language: "fr-FR",
 	}
 	t.Logf("%s", baseURL+distancematrix(orig, dst, opts))
-	r, err := c.DistanceMatrix(ctx, orig, dst, opts)
+	r, err := DistanceMatrix(ctx, orig, dst, opts)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
@@ -184,13 +179,19 @@ func TestDistanceMatrix(t *testing.T) {
 
 // Based on https://developers.google.com/maps/documentation/business/webservices/auth#signature_examples
 func TestSignature(t *testing.T) {
-	c := NewForWork("", "vNIXE0xscrmjlyV-12Nj_BvUPaw=", nil)
-	sig, err := c.genSig("/maps/api/geocode/json", "address=New+York&client=clientID")
+	clientID := "clientID"
+	privateKey := "vNIXE0xscrmjlyV-12Nj_BvUPaw="
+	sig, err := genSig(privateKey, "/maps/api/geocode/json", "address=New+York&client="+clientID)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
 	exp := "chaRF2hTJKOScPr-RQCEhZbSzIE="
 	if sig != exp {
-		t.Errorf("wrong signature, got %q, want %q", sig, exp)
+		t.Errorf("unexpected signature, got %q, want %q", sig, exp)
+	}
+
+	ctx := NewWorkContext(clientID, privateKey, nil)
+	if gcid, gkey := workCreds(ctx); gcid != clientID || gkey != privateKey {
+		t.Errorf("unepxected credentials from context, got %q and %q, want %q and %q", gcid, gkey, clientID, privateKey)
 	}
 }

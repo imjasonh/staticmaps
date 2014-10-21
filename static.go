@@ -48,8 +48,8 @@ const (
 )
 
 // StaticMap requests a static map image of a requested size.
-func (c Client) StaticMap(ctx context.Context, s Size, opts *StaticMapOpts) (io.ReadCloser, error) {
-	resp, err := c.do(ctx, baseURL+staticmap(s, opts))
+func StaticMap(ctx context.Context, s Size, opts *StaticMapOpts) (io.ReadCloser, error) {
+	resp, err := do(ctx, baseURL+staticmap(s, opts))
 	if err != nil {
 		return nil, err
 	}
