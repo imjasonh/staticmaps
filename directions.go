@@ -5,6 +5,8 @@ import (
 	"net/url"
 	"strings"
 	"time"
+
+	"code.google.com/p/go.net/context"
 )
 
 const (
@@ -35,9 +37,9 @@ const (
 // Directions requests routes between orig and dest Locations.
 //
 // See https://developers.google.com/maps/documentation/directions/
-func (c Client) Directions(orig, dest Location, opts *DirectionsOpts) ([]Route, error) {
+func (c Client) Directions(ctx context.Context, orig, dest Location, opts *DirectionsOpts) ([]Route, error) {
 	var d directionsResponse
-	if err := c.doDecode(baseURL+directions(orig, dest, opts), &d); err != nil {
+	if err := c.doDecode(ctx, baseURL+directions(orig, dest, opts), &d); err != nil {
 		return nil, err
 	}
 	if d.Status != StatusOK {

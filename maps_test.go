@@ -4,7 +4,11 @@ import (
 	"image/color"
 	"testing"
 	"time"
+
+	"code.google.com/p/go.net/context"
 )
+
+var ctx = context.Background()
 
 func TestDirections(t *testing.T) {
 	c := New("", nil)
@@ -15,7 +19,7 @@ func TestDirections(t *testing.T) {
 		Alternatives:  true,
 	}
 	t.Logf("%s", baseURL+directions(orig, dest, opts))
-	r, err := c.Directions(orig, dest, opts)
+	r, err := c.Directions(ctx, orig, dest, opts)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
@@ -73,7 +77,7 @@ func TestStaticMap(t *testing.T) {
 		},
 	}
 	t.Logf("%s", baseURL+staticmap(s, opts))
-	if _, err := c.StaticMap(s, opts); err != nil {
+	if _, err := c.StaticMap(ctx, s, opts); err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
 }
@@ -87,7 +91,7 @@ func TestStreetView(t *testing.T) {
 		Pitch:    -0.76,
 	}
 	t.Logf("%s", baseURL+streetview(s, opts))
-	if _, err := c.StreetView(s, opts); err != nil {
+	if _, err := c.StreetView(ctx, s, opts); err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
 }
@@ -97,7 +101,7 @@ func TestTimeZone(t *testing.T) {
 	ll := LatLng{40.7142700, -74.0059700}
 	tm := time.Now()
 	t.Logf("%s", baseURL+timezone(ll, tm, nil))
-	r, err := c.TimeZone(ll, tm, nil)
+	r, err := c.TimeZone(ctx, ll, tm, nil)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
@@ -108,7 +112,7 @@ func TestElevation(t *testing.T) {
 	c := New("", nil)
 	ll := []LatLng{{39.7391536, -104.9847034}}
 	t.Logf("%s", baseURL+elevation(ll))
-	r, err := c.Elevation(ll)
+	r, err := c.Elevation(ctx, ll)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
@@ -116,7 +120,7 @@ func TestElevation(t *testing.T) {
 
 	p := "gfo}EtohhU"
 	t.Logf("%s", baseURL+elevationpoly(p))
-	r, err = c.ElevationPolyline(p)
+	r, err = c.ElevationPolyline(ctx, p)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
@@ -125,7 +129,7 @@ func TestElevation(t *testing.T) {
 	samples := 3
 	ll = []LatLng{{36.578581, -118.291994}, {36.23998, -116.83171}}
 	t.Logf("%s", baseURL+elevationpath(ll, samples))
-	r, err = c.ElevationPath(ll, samples)
+	r, err = c.ElevationPath(ctx, ll, samples)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
@@ -133,7 +137,7 @@ func TestElevation(t *testing.T) {
 
 	p = "gfo}EtohhUxD@bAxJmGF"
 	t.Logf("%s", baseURL+elevationpathpoly(p, samples))
-	r, err = c.ElevationPathPoly(p, samples)
+	r, err = c.ElevationPathPoly(ctx, p, samples)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
@@ -146,7 +150,7 @@ func TestGeocode(t *testing.T) {
 		Address: Address("1600 Amphitheatre Parkway, Mountain View, CA"),
 	}
 	t.Logf("%s", baseURL+geocode(opts))
-	r, err := c.Geocode(opts)
+	r, err := c.Geocode(ctx, opts)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
@@ -154,7 +158,7 @@ func TestGeocode(t *testing.T) {
 
 	ll := LatLng{40.714224, -73.961452}
 	t.Logf("%s", baseURL+reversegeocode(ll, nil))
-	r, err = c.ReverseGeocode(ll, nil)
+	r, err = c.ReverseGeocode(ctx, ll, nil)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
@@ -170,7 +174,7 @@ func TestDistanceMatrix(t *testing.T) {
 		Language: "fr-FR",
 	}
 	t.Logf("%s", baseURL+distancematrix(orig, dst, opts))
-	r, err := c.DistanceMatrix(orig, dst, opts)
+	r, err := c.DistanceMatrix(ctx, orig, dst, opts)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}

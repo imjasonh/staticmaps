@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"net/url"
 	"strings"
+
+	"code.google.com/p/go.net/context"
 )
 
 const (
@@ -31,9 +33,9 @@ const (
 )
 
 // Geocode requests conversion of an address to a latitude/longitude pair.
-func (c Client) Geocode(opts *GeocodeOpts) ([]GeocodeResult, error) {
+func (c Client) Geocode(ctx context.Context, opts *GeocodeOpts) ([]GeocodeResult, error) {
 	var r geocodeResponse
-	if err := c.doDecode(baseURL+geocode(opts), &r); err != nil {
+	if err := c.doDecode(ctx, baseURL+geocode(opts), &r); err != nil {
 		return nil, err
 	}
 	if r.Status != StatusOK {
@@ -192,9 +194,9 @@ type GeocodeResult struct {
 // ReverseGeocode requests conversion of a location to its nearest address.
 //
 // See https://developers.google.com/maps/documentation/geocoding/#ReverseGeocoding
-func (c Client) ReverseGeocode(ll LatLng, opts *ReverseGeocodeOpts) ([]GeocodeResult, error) {
+func (c Client) ReverseGeocode(ctx context.Context, ll LatLng, opts *ReverseGeocodeOpts) ([]GeocodeResult, error) {
 	var r geocodeResponse
-	if err := c.doDecode(baseURL+reversegeocode(ll, opts), &r); err != nil {
+	if err := c.doDecode(ctx, baseURL+reversegeocode(ll, opts), &r); err != nil {
 		return nil, err
 	}
 	if r.Status != StatusOK {

@@ -4,14 +4,16 @@ import (
 	"fmt"
 	"net/url"
 	"time"
+
+	"code.google.com/p/go.net/context"
 )
 
 // DistanceMatrix requests travel distance and time for a matrix of origins and destinations.
 //
 // See https://developers.google.com/maps/documentation/distancematrix/
-func (c Client) DistanceMatrix(orig, dest []Location, opts *DistanceMatrixOpts) (*DistanceMatrixResult, error) {
+func (c Client) DistanceMatrix(ctx context.Context, orig, dest []Location, opts *DistanceMatrixOpts) (*DistanceMatrixResult, error) {
 	var d distanceResponse
-	if err := c.doDecode(baseURL+distancematrix(orig, dest, opts), &d); err != nil {
+	if err := c.doDecode(ctx, baseURL+distancematrix(orig, dest, opts), &d); err != nil {
 		return nil, err
 	}
 	if d.Status != StatusOK {

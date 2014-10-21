@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+
+	"code.google.com/p/go.net/context"
 )
 
 const (
@@ -46,8 +48,8 @@ const (
 )
 
 // StaticMap requests a static map image of a requested size.
-func (c Client) StaticMap(s Size, opts *StaticMapOpts) (io.ReadCloser, error) {
-	resp, err := c.do(baseURL + staticmap(s, opts))
+func (c Client) StaticMap(ctx context.Context, s Size, opts *StaticMapOpts) (io.ReadCloser, error) {
+	resp, err := c.do(ctx, baseURL+staticmap(s, opts))
 	if err != nil {
 		return nil, err
 	}

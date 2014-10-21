@@ -5,11 +5,13 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+
+	"code.google.com/p/go.net/context"
 )
 
 // StreetView requests a static StreetView image of the requested size.
-func (c Client) StreetView(s Size, opts *StreetViewOpts) (io.ReadCloser, error) {
-	resp, err := c.do(baseURL + streetview(s, opts))
+func (c Client) StreetView(ctx context.Context, s Size, opts *StreetViewOpts) (io.ReadCloser, error) {
+	resp, err := c.do(ctx, baseURL+streetview(s, opts))
 	if err != nil {
 		return nil, err
 	}

@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+
+	"code.google.com/p/go.net/context"
 )
 
 const (
@@ -64,7 +66,9 @@ func NewForWork(clientID, privateKey string, rt http.RoundTripper) Client {
 	return Client{ClientID: clientID, PrivateKey: privateKey, Transport: rt}
 }
 
-func (c Client) do(url string) (*http.Response, error) {
+func (c Client) do(ctx context.Context, url string) (*http.Response, error) {
+	// TODO: Use ctx here.
+
 	t := c.Transport
 	if t == nil {
 		t = http.DefaultTransport
@@ -109,8 +113,8 @@ func (c Client) genSig(path, query string) (string, error) {
 	return base64.URLEncoding.EncodeToString(d.Sum(nil)), nil
 }
 
-func (c Client) doDecode(url string, r interface{}) error {
-	resp, err := c.do(url)
+func (c Client) doDecode(ctx context.Context, url string, r interface{}) error {
+	resp, err := c.do(ctx, url)
 	if err != nil {
 		return err
 	}
