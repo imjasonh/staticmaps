@@ -1,0 +1,4 @@
+- Move code into /maps directory so clients can import ".../maps" instead of aliasing the import every time
+- Add samples as subdirectories
+- Flesh out README.md with usage information
+- Add Example_whatever test cases that demonstrate usage
