@@ -52,21 +52,25 @@ type Client struct {
 	PrivateKey string
 }
 
-// NewClient returns a Client using the specified API key.
-func NewClient(key string) Client {
-	return Client{Key: key, Transport: http.DefaultTransport}
+// New returns a Client using the specified API key and RoundTripper.
+func New(key string, rt http.RoundTripper) Client {
+	return Client{Key: key, Transport: rt}
 }
 
-// NewWorkClient returns a Client using the specified Google Maps API for Work client ID and signature.
+// NewForWork returns a Client using the specified Google Maps API for Work client ID and signature, and RoundTripper.
 //
 // See https://developers.google.com/maps/documentation/business/
-func NewWorkClient(clientID, privateKey string) Client {
-	return Client{ClientID: clientID, PrivateKey: privateKey, Transport: http.DefaultTransport}
+func NewForWork(clientID, privateKey string, rt http.RoundTripper) Client {
+	return Client{ClientID: clientID, PrivateKey: privateKey, Transport: rt}
 }
 
 func (c Client) do(url string) (*http.Response, error) {
+	t := c.Transport
+	if t == nil {
+		t = http.DefaultTransport
+	}
 	cl := &http.Client{Transport: &backoff{
-		Transport: &c.Transport,
+		Transport: t,
 	}}
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {

@@ -7,16 +7,13 @@ import (
 )
 
 type backoff struct {
-	Transport *http.RoundTripper
+	Transport http.RoundTripper
 	MaxTries  int
 	tries     int
 	sleep     func(time.Duration)
 }
 
 func (bt *backoff) RoundTrip(req *http.Request) (*http.Response, error) {
-	if bt.Transport == nil {
-		bt.Transport = &http.DefaultTransport
-	}
 	if bt.MaxTries == 0 {
 		bt.MaxTries = 5
 	}
@@ -27,7 +24,7 @@ func (bt *backoff) RoundTrip(req *http.Request) (*http.Response, error) {
 	var err error
 	for ; bt.tries < bt.MaxTries; bt.tries++ {
 		var resp *http.Response
-		resp, err = (*bt.Transport).RoundTrip(req)
+		resp, err = bt.Transport.RoundTrip(req)
 		if err != nil {
 			// fallthrough, retry
 		} else if resp.StatusCode >= http.StatusInternalServerError {

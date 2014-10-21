@@ -15,7 +15,8 @@ func TestBackoff(t *testing.T) {
 	tries := 10
 	sleeps := 0
 	bt := &backoff{
-		MaxTries: tries,
+		MaxTries:  tries,
+		Transport: http.DefaultTransport,
 		sleep: func(d time.Duration) {
 			sleeps += 1
 			t.Logf("sleeping %s", d)

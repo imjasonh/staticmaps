@@ -6,7 +6,7 @@ import (
 )
 
 func TestDirections(t *testing.T) {
-	c := NewClient("")
+	c := New("", nil)
 	orig, dest := Address("111 8th Ave, NYC"), Address("170 E 92nd St, NYC")
 	opts := &DirectionsOpts{
 		Mode:          ModeTransit,
@@ -22,7 +22,7 @@ func TestDirections(t *testing.T) {
 }
 
 func TestStaticMap(t *testing.T) {
-	c := NewClient("")
+	c := New("", nil)
 	s := Size{512, 512}
 	opts := &StaticMapOpts{
 		Center: LatLng{-5, -5},
@@ -78,7 +78,7 @@ func TestStaticMap(t *testing.T) {
 }
 
 func TestStreetView(t *testing.T) {
-	c := NewClient("")
+	c := New("", nil)
 	s := Size{600, 300}
 	opts := &StreetViewOpts{
 		Location: &LatLng{46.414382, 10.013988},
@@ -92,7 +92,7 @@ func TestStreetView(t *testing.T) {
 }
 
 func TestTimeZone(t *testing.T) {
-	c := NewClient("")
+	c := New("", nil)
 	ll := LatLng{40.7142700, -74.0059700}
 	tm := time.Now()
 	t.Logf("%s", baseURL+timezone(ll, tm, nil))
@@ -104,7 +104,7 @@ func TestTimeZone(t *testing.T) {
 }
 
 func TestElevation(t *testing.T) {
-	c := NewClient("")
+	c := New("", nil)
 	ll := []LatLng{{39.7391536, -104.9847034}}
 	t.Logf("%s", baseURL+elevation(ll))
 	r, err := c.Elevation(ll)
@@ -140,7 +140,7 @@ func TestElevation(t *testing.T) {
 }
 
 func TestGeocode(t *testing.T) {
-	c := NewClient("")
+	c := New("", nil)
 	opts := &GeocodeOpts{
 		Address: Address("1600 Amphitheatre Parkway, Mountain View, CA"),
 	}
@@ -161,7 +161,7 @@ func TestGeocode(t *testing.T) {
 }
 
 func TestDistanceMatrix(t *testing.T) {
-	c := NewClient("")
+	c := New("", nil)
 	orig := []Location{Address("Vancouver, BC"), Address("Seattle")}
 	dst := []Location{Address("San Francisco"), Address("Victoria, BC")}
 	opts := &DistanceMatrixOpts{
@@ -179,7 +179,7 @@ func TestDistanceMatrix(t *testing.T) {
 
 // Based on https://developers.google.com/maps/documentation/business/webservices/auth#signature_examples
 func TestSignature(t *testing.T) {
-	c := NewWorkClient("", "vNIXE0xscrmjlyV-12Nj_BvUPaw=")
+	c := NewForWork("", "vNIXE0xscrmjlyV-12Nj_BvUPaw=", nil)
 	sig, err := c.genSig("/maps/api/geocode/json", "address=New+York&client=clientID")
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
