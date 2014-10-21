@@ -2,6 +2,7 @@ package maps
 
 import (
 	"fmt"
+	"image/color"
 	"io"
 	"net/http"
 	"net/url"
@@ -35,6 +36,13 @@ const (
 	SizeMid = "mid"
 	// SizeLarge requests a large-sized marker.
 	SizeLarge = "large"
+
+	// VisibilityOn requests that the feature be shown.
+	VisibilityOn = "on"
+	// VisibilityOff requests that the feature not be shown.
+	VisibilityOff = "off"
+	// VisibilitySimplified requests that the feature be shown in a simplified manner.
+	VisibilitySimplified = "simplified"
 )
 
 // StaticMap requests a static map image of a requested size.
@@ -133,10 +141,10 @@ type Markers struct {
 	// Accepted values are SizeTiny, SizeMid (the default) and SizeLarge.
 	Size string // tiny, mid, small
 
-	// Color defines the 24-bit color of the marker(s), specified as a hex string such as "#FF0033"
+	// Color defines the color of the marker(s).
 	//
-	// Predefined color names are also accepted: "black", "brown", "green", "purple", "yellow", "blue", "gray", "orange", "red" and "white".
-	Color string
+	// The alpha value of this color is ignored.
+	Color color.Color
 
 	// Label specifies a single uppercase alphanumeric character to place inside the marker image.
 	Label string
@@ -151,13 +159,23 @@ type Markers struct {
 	Locations []Location
 }
 
+func rgb(c color.Color) string {
+	r, g, b, _ := c.RGBA()
+	return fmt.Sprintf("0x%02X%02X%02X", r>>8, g>>8, b>>8)
+}
+
+func rgba(c color.Color) string {
+	r, g, b, a := c.RGBA()
+	return fmt.Sprintf("0x%02X%02X%02X%02X", r>>8, g>>8, b>>8, a>>8)
+}
+
 func (m Markers) encode() string {
 	s := []string{}
 	if m.Size != "" {
 		s = append(s, "size:"+m.Size)
 	}
-	if m.Color != "" {
-		s = append(s, "color:"+m.Color)
+	if m.Color != nil {
+		s = append(s, "color:"+rgb(m.Color))
 	}
 	if m.Label != "" {
 		s = append(s, "label:"+m.Label)
@@ -180,17 +198,11 @@ type Path struct {
 	// Weight specifies the thickness of the path in pixels. If no weight is specified, the default is 5 pixels.
 	Weight int
 
-	// Color defines the 24-bit color or 32-bit (with transparency) of the path, specified as a hex string such as "#FF0033" or "#FF0033CC"
-	//
-	// Predefined color names are also accepted: "black", "brown", "green", "purple", "yellow", "blue", "gray", "orange", "red" and "white".
-	Color string
+	// Color defines the color of the path.
+	Color color.Color
 
-	// Color defines the 24-bit color or 32-bit (with transparency) to fill the area of the path, specified as a hex string such as "#FF0033" or "#FF0033CC"
-	//
-	// The set of locations do not need to represent a "closed" loop; the server will automatically join the first and last points.
-	//
-	// Predefined color names are also accepted: "black", "brown", "green", "purple", "yellow", "blue", "gray", "orange", "red" and "white".
-	FillColor string
+	// FillColor defines the color to fill the area of the path.
+	FillColor color.Color
 
 	// Geodesic, if true, indicates that the requested path should be interpreted as a geodesic line that follows the curvature of the earth.
 	//
@@ -209,11 +221,11 @@ func (p Path) encode() string {
 	if p.Weight != 0 {
 		s = append(s, fmt.Sprintf("weight:%d", p.Weight))
 	}
-	if p.Color != "" {
-		s = append(s, "color:"+p.Color)
+	if p.Color != nil {
+		s = append(s, "color:"+rgba(p.Color))
 	}
-	if p.FillColor != "" {
-		s = append(s, "fillcolor:"+p.FillColor)
+	if p.FillColor != nil {
+		s = append(s, "fillcolor:"+rgba(p.FillColor))
 	}
 	if p.Geodesic {
 		s = append(s, "geodesic:true")
@@ -260,33 +272,34 @@ func (t Style) encode() string {
 
 // StyleRule defines a style rule to apply to the map.
 type StyleRule struct {
-	// Hue is the hue value, as a hex string (e.g., "#FF00EE") to apply to the selection.
-	Hue string // rgb color
+	// Hue is the hue value to apply to the selection.
+	//
+	// Note that while this takes a color value, it only uses this value to determine the basic color (its orientation around the color wheel),
+	// not its saturation or lightness, which are indicated separately as percentage changes.
+	Hue color.Color
 
 	// Lightness (a value between -100 and 100) indicates the percentage change in brightness of the element. -100 is black, 100 is white.
 	Lightness float64
 
 	// Saturation (a value between -100 and 100) indicates the percentage change in intensity of the basic color to apply to the element.
-	Saturation float64 // -100 to 100
+	Saturation float64
 
 	// Gamma (a value between 0.01 and 10.0, where 1.0 applies no correction) indicates the amount of gamma correction to apply to the element.
 	Gamma *float64 // .01 to 10, default 1
 
-	// InverseLightness, if specified and true, inverts the Lightness value.
-	InverseLightness *bool
+	// InverseLightness, if true, inverts the Lightness value.
+	InverseLightness bool
 
 	// Visibility indicates whether and how the element appears on the map.
 	//
-	// A value of "simplified" indicates that the map should simplify the presentation of those elements as it sees fit.
-	//
-	// Accepted values are "on", "off" and "simplified"
-	Visibility string // TODO: enum
+	// Accepted values are VisibilityOn (the default), VisibilityOff and VisibilitySimplified.
+	Visibility string
 }
 
 func (r StyleRule) encode() string {
 	s := []string{}
-	if r.Hue != "" {
-		s = append(s, "hue:"+r.Hue)
+	if r.Hue != nil {
+		s = append(s, "hue:"+rgb(r.Hue))
 	}
 	if r.Lightness != 0 {
 		s = append(s, fmt.Sprintf("lightness:%f", r.Lightness))
@@ -297,8 +310,8 @@ func (r StyleRule) encode() string {
 	if r.Gamma != nil {
 		s = append(s, fmt.Sprintf("gamma:%f", *r.Gamma))
 	}
-	if r.InverseLightness != nil && *r.InverseLightness == false {
-		s = append(s, "inverse_lightness:false")
+	if r.InverseLightness {
+		s = append(s, "inverse_lightness:true")
 	}
 	if r.Visibility != "" {
 		s = append(s, "visibility:"+r.Visibility)

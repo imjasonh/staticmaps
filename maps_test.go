@@ -1,6 +1,7 @@
 package maps
 
 import (
+	"image/color"
 	"testing"
 	"time"
 )
@@ -29,14 +30,14 @@ func TestStaticMap(t *testing.T) {
 		Markers: []Markers{
 			{
 				Size:  "small",
-				Color: "blue",
+				Color: color.Black,
 				Locations: []Location{
 					LatLng{1, 1},
 					LatLng{2, 2},
 				},
 			}, {
 				Size:  "mid",
-				Color: "red",
+				Color: color.White,
 				Locations: []Location{
 					LatLng{3, 3},
 				},
@@ -45,14 +46,14 @@ func TestStaticMap(t *testing.T) {
 		Paths: []Path{
 			{
 				Weight: 10,
-				Color:  "green",
+				Color:  color.Black,
 				Locations: []Location{
 					LatLng{4, 4},
 					LatLng{5, 5},
 				},
 			}, {
-				Color:     "0x00000000",
-				FillColor: "0x00000033",
+				Color:     color.Black,
+				FillColor: color.White,
 				Locations: []Location{
 					LatLng{6, 6}, LatLng{7, 7}, LatLng{7, 3},
 				},
@@ -66,7 +67,7 @@ func TestStaticMap(t *testing.T) {
 				Feature: "water",
 				Element: "geometry.fill",
 				Rules: []StyleRule{
-					{Hue: "0x0000FF"},
+					{Hue: color.White, Saturation: -100.0},
 				},
 			},
 		},
