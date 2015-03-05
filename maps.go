@@ -58,7 +58,7 @@ func do(ctx context.Context, url string) (*http.Response, error) {
 		enc += "&signature=" + sig
 	}
 	req.URL.RawQuery = enc
-	return cl.Get(url)
+	return cl.Do(req)
 }
 
 // See https://developers.google.com/maps/documentation/business/webservices/auth

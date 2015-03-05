@@ -1,6 +1,7 @@
 package maps
 
 import (
+	"flag"
 	"image/color"
 	"net/http"
 	"testing"
@@ -8,9 +9,15 @@ import (
 )
 
 var (
+	apiKey = flag.String("apiKey", "", "Google Maps API key")
+
 	ctx  = NewContext("key", &http.Client{})
 	wctx = NewWorkContext("clientID", "privKey", &http.Client{})
 )
+
+func init() {
+	flag.Parse()
+}
 
 func TestDirections(t *testing.T) {
 	orig, dest := Address("111 8th Ave, NYC"), Address("170 E 92nd St, NYC")
@@ -174,7 +181,27 @@ func TestDistanceMatrix(t *testing.T) {
 		t.Errorf("unexpected error: %v", err)
 	}
 	t.Logf("%v", r)
+}
 
+func TestSnapToRoads(t *testing.T) {
+	ctx = NewContext(*apiKey, &http.Client{})
+
+	path := []LatLng{{-35.27801, 149.12958},
+		{-35.28032, 149.12907},
+		{-35.28099, 149.12929},
+		{-35.28144, 149.12984},
+		{-35.28194, 149.13003},
+		{-35.28282, 149.12956},
+		{-35.28302, 149.12881},
+		{-35.28473, 149.12836}}
+	opts := &SnapToRoadsOpts{
+		Interpolate: true,
+	}
+	r, err := SnapToRoads(ctx, path, opts)
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+	t.Logf("%v", r)
 }
 
 // Based on https://developers.google.com/maps/documentation/business/webservices/auth#signature_examples
