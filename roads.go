@@ -1,6 +1,7 @@
 package maps
 
 import (
+	"errors"
 	"net/url"
 
 	"code.google.com/p/go.net/context"
@@ -8,7 +9,13 @@ import (
 
 const roadsAPIBaseURL = "https://roads.googleapis.com/v1/"
 
+var ErrNoAPIKey = errors.New("must provide an API key")
+
 func SnapToRoads(ctx context.Context, path []LatLng, opts *SnapToRoadsOpts) ([]SnappedPoint, error) {
+	if key(ctx) == "" {
+		return nil, ErrNoAPIKey
+	}
+
 	var d snapToRoadsResponse
 	if err := doDecode(ctx, roadsAPIBaseURL+snapToRoads(path, opts), &d); err != nil {
 		return nil, err

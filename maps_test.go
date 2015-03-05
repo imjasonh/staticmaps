@@ -11,7 +11,7 @@ import (
 var (
 	apiKey = flag.String("apiKey", "", "Google Maps API key")
 
-	ctx  = NewContext("key", &http.Client{})
+	ctx  = NewContext("", &http.Client{})
 	wctx = NewWorkContext("clientID", "privKey", &http.Client{})
 )
 
@@ -184,8 +184,6 @@ func TestDistanceMatrix(t *testing.T) {
 }
 
 func TestSnapToRoads(t *testing.T) {
-	ctx = NewContext(*apiKey, &http.Client{})
-
 	path := []LatLng{{-35.27801, 149.12958},
 		{-35.28032, 149.12907},
 		{-35.28099, 149.12929},
@@ -197,7 +195,13 @@ func TestSnapToRoads(t *testing.T) {
 	opts := &SnapToRoadsOpts{
 		Interpolate: true,
 	}
-	r, err := SnapToRoads(ctx, path, opts)
+
+	if _, err := SnapToRoads(ctx, path, opts); err != ErrNoAPIKey {
+		t.Errorf("unexpected error, got %v, want %v", err, ErrNoAPIKey)
+	}
+
+	keyCtx := NewContext(*apiKey, &http.Client{})
+	r, err := SnapToRoads(keyCtx, path, opts)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
