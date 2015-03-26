@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"code.google.com/p/go.net/context"
+	"golang.org/x/net/context"
 )
 
 const (

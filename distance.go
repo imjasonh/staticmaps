@@ -5,7 +5,7 @@ import (
 	"net/url"
 	"time"
 
-	"code.google.com/p/go.net/context"
+	"golang.org/x/net/context"
 )
 
 // DistanceMatrix requests travel distance and time for a matrix of origins and destinations.

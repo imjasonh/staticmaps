@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"net/url"
 
-	"code.google.com/p/go.net/context"
+	"golang.org/x/net/context"
 )
 
 // StreetView requests a static StreetView image of the requested size.

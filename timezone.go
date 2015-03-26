@@ -5,7 +5,7 @@ import (
 	"net/url"
 	"time"
 
-	"code.google.com/p/go.net/context"
+	"golang.org/x/net/context"
 )
 
 // TimeZone requests time zone information about a location.

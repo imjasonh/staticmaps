@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/url"
 
-	"code.google.com/p/go.net/context"
+	"golang.org/x/net/context"
 )
 
 // Elevation requests elevation data for a series of locations.
