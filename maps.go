@@ -1,6 +1,7 @@
 package maps
 
 import (
+	"context"
 	"crypto/hmac"
 	"crypto/sha1"
 	"encoding/base64"
@@ -8,8 +9,6 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
-
-	"golang.org/x/net/context"
 )
 
 const (

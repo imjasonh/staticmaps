@@ -1,22 +1,25 @@
 package maps
 
 import (
-	"flag"
 	"image/color"
+	"log"
 	"net/http"
+	"os"
 	"testing"
 	"time"
 )
 
 var (
-	apiKey = flag.String("apiKey", "", "Google Maps API key")
-
-	ctx  = NewContext("", &http.Client{})
-	wctx = NewWorkContext("clientID", "privKey", &http.Client{})
+	apiKey string
+	ctx    = NewContext("", &http.Client{})
+	wctx   = NewWorkContext("clientID", "privKey", &http.Client{})
 )
 
 func init() {
-	flag.Parse()
+	apiKey = os.Getenv("API_KEY")
+	if apiKey == "" {
+		log.Fatal("API_KEY must be provided")
+	}
 }
 
 func TestDirections(t *testing.T) {
@@ -200,7 +203,7 @@ func TestSnapToRoads(t *testing.T) {
 		t.Errorf("unexpected error, got %v, want %v", err, ErrNoAPIKey)
 	}
 
-	keyCtx := NewContext(*apiKey, &http.Client{})
+	keyCtx := NewContext(apiKey, &http.Client{})
 	r, err := SnapToRoads(keyCtx, path, opts)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)

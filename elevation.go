@@ -1,10 +1,9 @@
 package maps
 
 import (
+	"context"
 	"fmt"
 	"net/url"
-
-	"golang.org/x/net/context"
 )
 
 // Elevation requests elevation data for a series of locations.

@@ -1,11 +1,10 @@
 package maps
 
 import (
+	"context"
 	"fmt"
 	"net/url"
 	"time"
-
-	"golang.org/x/net/context"
 )
 
 // DistanceMatrix requests travel distance and time for a matrix of origins and destinations.

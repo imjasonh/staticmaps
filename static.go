@@ -1,14 +1,13 @@
 package maps
 
 import (
+	"context"
 	"fmt"
 	"image/color"
 	"io"
 	"net/http"
 	"net/url"
 	"strings"
-
-	"golang.org/x/net/context"
 )
 
 const (

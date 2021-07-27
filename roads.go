@@ -1,10 +1,9 @@
 package maps
 
 import (
+	"context"
 	"errors"
 	"net/url"
-
-	"code.google.com/p/go.net/context"
 )
 
 const roadsAPIBaseURL = "https://roads.googleapis.com/v1/"

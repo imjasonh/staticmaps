@@ -1,12 +1,11 @@
 package maps
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"net/http"
 	"net/url"
-
-	"golang.org/x/net/context"
 )
 
 // StreetView requests a static StreetView image of the requested size.

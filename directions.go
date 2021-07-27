@@ -1,12 +1,11 @@
 package maps
 
 import (
+	"context"
 	"fmt"
 	"net/url"
 	"strings"
 	"time"
-
-	"golang.org/x/net/context"
 )
 
 const (
