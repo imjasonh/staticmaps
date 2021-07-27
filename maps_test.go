@@ -1,6 +1,7 @@
 package maps
 
 import (
+	"context"
 	"image/color"
 	"log"
 	"net/http"
@@ -11,7 +12,7 @@ import (
 
 var (
 	apiKey string
-	ctx    = NewContext("", &http.Client{})
+	ctx    context.Context
 	wctx   = NewWorkContext("clientID", "privKey", &http.Client{})
 )
 
@@ -20,6 +21,7 @@ func init() {
 	if apiKey == "" {
 		log.Fatal("API_KEY must be provided")
 	}
+	ctx = NewContext(apiKey, http.DefaultClient)
 }
 
 func TestDirections(t *testing.T) {
@@ -41,52 +43,47 @@ func TestStaticMap(t *testing.T) {
 	s := Size{512, 512}
 	opts := &StaticMapOpts{
 		Center: LatLng{-5, -5},
-		Markers: []Markers{
-			{
-				Size:  "small",
-				Color: color.Black,
-				Locations: []Location{
-					LatLng{1, 1},
-					LatLng{2, 2},
-				},
-			}, {
-				Size:  "mid",
-				Color: color.White,
-				Locations: []Location{
-					LatLng{3, 3},
-				},
+		Markers: []Markers{{
+			Size:  "small",
+			Color: color.Black,
+			Locations: []Location{
+				LatLng{1, 1},
+				LatLng{2, 2},
 			},
-		},
-		Paths: []Path{
-			{
-				Weight: 10,
-				Color:  color.Black,
-				Locations: []Location{
-					LatLng{4, 4},
-					LatLng{5, 5},
-				},
-			}, {
-				Color:     color.Black,
-				FillColor: color.White,
-				Locations: []Location{
-					LatLng{6, 6}, LatLng{7, 7}, LatLng{7, 3},
-				},
+		}, {
+			Size:  "mid",
+			Color: color.White,
+			Locations: []Location{
+				LatLng{3, 3},
 			},
-		},
+		}},
+		Paths: []Path{{
+			Weight: 10,
+			Color:  color.Black,
+			Locations: []Location{
+				LatLng{4, 4},
+				LatLng{5, 5},
+			},
+		}, {
+			Color:     color.Black,
+			FillColor: color.White,
+			Locations: []Location{
+				LatLng{6, 6}, LatLng{7, 7}, LatLng{7, 3},
+			},
+		}},
 		Visible: []Location{
 			LatLng{15, 15},
 		},
-		Styles: []Style{
-			{
-				Feature: "water",
-				Element: "geometry.fill",
-				Rules: []StyleRule{
-					{Hue: color.White, Saturation: -100.0},
-				},
+		Styles: []Style{{
+			Feature: "water",
+			Element: "geometry.fill",
+			Rules: []StyleRule{
+				{Hue: color.White, Saturation: -100.0},
 			},
-		},
+		}},
 	}
 	t.Logf("%s", baseURL+staticmap(s, opts))
+	ctx := NewContext(apiKey, &http.Client{})
 	if _, err := StaticMap(ctx, s, opts); err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
@@ -199,12 +196,7 @@ func TestSnapToRoads(t *testing.T) {
 		Interpolate: true,
 	}
 
-	if _, err := SnapToRoads(ctx, path, opts); err != ErrNoAPIKey {
-		t.Errorf("unexpected error, got %v, want %v", err, ErrNoAPIKey)
-	}
-
-	keyCtx := NewContext(apiKey, &http.Client{})
-	r, err := SnapToRoads(keyCtx, path, opts)
+	r, err := SnapToRoads(ctx, path, opts)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
